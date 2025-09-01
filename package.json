@@ -1,9 +1,16 @@
 {
   "name": "audyteko-sdr-scraper",
   "version": "1.0.0",
+  "description": "Scraper for Audyteko SDR",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "chrome-aws-lambda": "10.1.0",
-    "puppeteer-core": "10.1.0"
+    "chrome-aws-lambda": "^10.1.0",
+    "puppeteer-core": "^10.4.0"
   }
 }
 
