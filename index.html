@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audyteko SDR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .log-entry { transition: all 0.3s ease-in-out; transform-origin: top; }
+        .status-badge { min-width: 140px; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+        <!-- Nagłówek -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-cyan-400">Audyteko SDR</h1>
+            <p class="text-gray-400 mt-1">Asystent do wysyłania wiadomości na Otodom</p>
+        </div>
+
+        <!-- Panel konfiguracyjny -->
+        <div class="bg-gray-900/50 p-6 rounded-xl space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label for="otodom-url" class="block text-sm font-medium text-gray-300 mb-2">Link do wyników wyszukiwania Otodom</label>
+                    <input type="text" id="otodom-url" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Wklej tutaj link..." value="https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?limit=24&ownerTypeSingleSelect=AGENCY&page=1">
+                </div>
+                <div>
+                    <label for="page-count" class="block text-sm font-medium text-gray-300 mb-2">Liczba stron</label>
+                    <input type="number" id="page-count" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="1" min="1" max="50">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label for="user-name" class="block text-sm font-medium text-gray-300 mb-2">Twoje Imię</label><input type="text" id="user-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="Jan"></div>
+                <div><label for="user-email" class="block text-sm font-medium text-gray-300 mb-2">Twój Email</label><input type="email" id="user-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="jan.kowalski@example.com"></div>
+                <div><label for="user-phone" class="block text-sm font-medium text-gray-300 mb-2">Twój Telefon</label><input type="tel" id="user-phone" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="500100200"></div>
+            </div>
+
+            <div>
+                <label for="message-template" class="block text-sm font-medium text-gray-300 mb-2">Szablon wiadomości</label>
+                <textarea id="message-template" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">Dzień dobry, {nazwa_uzytkownika}, piszę w nawiązaniu do Państwa ogłoszenia. Chciałbym zaproponować współpracę. Z poważaniem, Jan Kowalski</textarea>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                <button id="start-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Start</span>
+                </button>
+                <button id="stop-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2" disabled>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                    <span>Stop</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel postępu i logów -->
+        <div class="bg-gray-900/50 p-6 rounded-xl">
+            <h2 class="text-xl font-semibold mb-4">Panel Postępu</h2>
+            <div id="status-bar" class="bg-gray-700 p-3 rounded-lg text-center text-gray-400 mb-4 transition-colors duration-300 flex items-center justify-center gap-3">
+                Oczekiwanie na uruchomienie...
+            </div>
+            <div id="log-container" class="h-64 overflow-y-auto pr-2 space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const urlInput = document.getElementById('otodom-url');
+        const pageCountInput = document.getElementById('page-count');
+        const messageTemplateInput = document.getElementById('message-template');
+        const statusBar = document.getElementById('status-bar');
+        const logContainer = document.getElementById('log-container');
+        const userNameInput = document.getElementById('user-name');
+        const userEmailInput = document.getElementById('user-email');
+        const userPhoneInput = document.getElementById('user-phone');
+
+        let isRunning = false;
+        
+        function setUIState(running) {
+            isRunning = running;
+            startBtn.disabled = running;
+            stopBtn.disabled = !running;
+            [urlInput, pageCountInput, messageTemplateInput, userNameInput, userEmailInput, userPhoneInput].forEach(input => input.disabled = running);
+            startBtn.classList.toggle('opacity-50', running);
+            stopBtn.classList.toggle('opacity-50', !running);
+        }
+
+        function updateStatus(message, isLoading = false, isError = false) {
+            statusBar.innerHTML = ''; 
+            if (isLoading) {
+                const loader = document.createElement('div');
+                loader.className = 'loader';
+                statusBar.appendChild(loader);
+            }
+            const text = document.createElement('span');
+            text.textContent = message;
+            statusBar.appendChild(text);
+            
+            let colorClass = 'bg-gray-700';
+            if (isError) colorClass = 'bg-red-500';
+            statusBar.className = `p-3 rounded-lg text-center text-white transition-colors duration-300 flex items-center justify-center gap-3 ${colorClass}`;
+        }
+        
+        function addLogEntry(result) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry bg-gray-800 p-3 rounded-lg flex items-center justify-between animate-fade-in';
+            
+            let statusBadge;
+            if (result.status === 'success') {
+                statusBadge = `<span class="status-badge text-sm font-semibold text-green-400 bg-green-900/50 px-3 py-1 rounded-full">Wysłano</span>`;
+            } else if (result.status === 'skipped') {
+                statusBadge = `<span class="status-badge text-sm font-semibold text-yellow-400 bg-yellow-900/50 px-3 py-1 rounded-full">Pominięto (Duplikat)</span>`;
+            } else {
+                statusBadge = `<span class="status-badge text-sm font-semibold text-red-400 bg-red-900/50 px-3 py-1 rounded-full" title="${result.reason || 'Nieznany błąd'}">Błąd</span>`;
+            }
+
+            entry.innerHTML = `
+                <div>
+                    <span class="font-medium text-white">${result.user}</span>
+                    <p class="text-xs text-gray-400">${result.phone || 'Brak numeru'}</p>
+                </div>
+                ${statusBadge}`;
+            logContainer.prepend(entry);
+        }
+
+        async function startProcess() {
+            if (isRunning) return;
+
+            const userName = userNameInput.value.trim();
+            const userEmail = userEmailInput.value.trim();
+            const userPhone = userPhoneInput.value.trim();
+
+            if (!userName || !userEmail || !userPhone) {
+                updateStatus('Błąd: Wypełnij pola Imię, Email i Telefon.', false, true);
+                return;
+            }
+
+            setUIState(true);
+            logContainer.innerHTML = '';
+            
+            const scraperUrl = 'https://twoja-unikalna-nazwa.netlify.app/.netlify/functions/scrape';
+            const pageCount = parseInt(pageCountInput.value, 10) || 1;
+            const baseUrl = urlInput.value.trim();
+            let totalAdsProcessed = 0;
+            let processedContacts = new Set(); // Pamięć sesji dla duplikatów
+
+            for (let currentPage = 1; currentPage <= pageCount; currentPage++) {
+                if (!isRunning) { break; }
+
+                updateStatus(`Pobieranie linków (Strona ${currentPage}/${pageCount})...`, true);
+                
+                let pageUrl;
+                if (baseUrl.includes('page=')) {
+                    pageUrl = baseUrl.replace(/page=\d+/, `page=${currentPage}`);
+                } else {
+                    pageUrl = baseUrl.includes('?') ? `${baseUrl}&page=${currentPage}` : `${baseUrl}?page=${currentPage}`;
+                }
+                
+                let adLinks;
+                try {
+                    const response = await fetch(scraperUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task: 'get_links', url: pageUrl })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Błąd serwera');
+                    adLinks = result.data;
+                } catch (error) {
+                    updateStatus(`Błąd pobierania linków ze strony ${currentPage}. Zatrzymuję.`, false, true);
+                    setUIState(false);
+                    return;
+                }
+
+                if (!adLinks || adLinks.length === 0) {
+                    updateStatus(`Nie znaleziono ogłoszeń na stronie ${currentPage}. Przechodzę dalej...`, false);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    continue;
+                }
+                
+                for (let i = 0; i < adLinks.length; i++) {
+                    if (!isRunning) { break; }
+                    
+                    updateStatus(`Strona ${currentPage}/${pageCount} - Przetwarzanie ogłoszenia ${i + 1}/${adLinks.length}...`, true);
+                    
+                    try {
+                        const payload = {
+                            task: 'process_ad',
+                            adUrl: adLinks[i],
+                            userData: { name: userName, email: userEmail, phone: userPhone },
+                            message: messageTemplateInput.value.trim(),
+                            knownContacts: Array.from(processedContacts) // Wyślij listę już przetworzonych
+                        };
+
+                        const response = await fetch(scraperUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.error);
+                        
+                        // Dodaj do przetworzonych, jeśli nie jest to duplikat i ma dane kontaktowe
+                        if (result.data.status !== 'skipped' && result.data.user && result.data.phone) {
+                            const contactKey = `${result.data.user}|${result.data.phone}`;
+                            processedContacts.add(contactKey);
+                        }
+
+                        addLogEntry(result.data);
+                        totalAdsProcessed++;
+
+                    } catch (error) {
+                        addLogEntry({ user: `Ogłoszenie ${i + 1}`, phone: 'Błąd krytyczny', status: 'failure', reason: error.message });
+                    }
+                }
+            }
+
+            if (isRunning) {
+                updateStatus(`Zakończono! Przetworzono ${totalAdsProcessed} ogłoszeń z ${pageCount} stron(y).`);
+            } else {
+                 updateStatus(`Proces zatrzymany. Przetworzono ${totalAdsProcessed} ogłoszeń.`, false, true);
+            }
+            setUIState(false);
+        }
+
+        function stopProcess() {
+            if (!isRunning) return;
+            isRunning = false; 
+            updateStatus('Zatrzymywanie...', false, true);
+        }
+
+        startBtn.addEventListener('click', startProcess);
+        stopBtn.addEventListener('click', stopProcess);
+        setUIState(false);
+    </script>
+</body>
+</html>
