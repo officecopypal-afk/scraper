@@ -1,4 +1,5 @@
 [functions]
+  external_node_modules = ["@sparticuz/chromium"]
   included_files = ["node_modules/@sparticuz/chromium/**"]
 
 [functions."*"]
