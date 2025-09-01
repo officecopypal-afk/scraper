@@ -14,7 +14,7 @@
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid #6ff17c; /* Zmieniony kolor */
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -28,7 +28,7 @@
     <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
         <!-- Nagłówek -->
         <div class="text-center">
-            <h1 class="text-3xl font-bold text-cyan-400">Audyteko SDR</h1>
+            <h1 class="text-3xl font-bold text-[#6ff17c]">Audyteko SDR</h1>
             <p class="text-gray-400 mt-1">Asystent do wysyłania wiadomości na Otodom</p>
         </div>
 
@@ -37,7 +37,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-2">
                     <label for="otodom-url" class="block text-sm font-medium text-gray-300 mb-2">Link do wyników wyszukiwania Otodom</label>
-                    <input type="text" id="otodom-url" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Wklej tutaj link..." value="https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?limit=24&ownerTypeSingleSelect=AGENCY&page=1">
+                    <input type="text" id="otodom-url" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6ff17c]" placeholder="Wklej tutaj link..." value="https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?limit=24&ownerTypeSingleSelect=AGENCY&page=1">
                 </div>
                 <div>
                     <label for="page-count" class="block text-sm font-medium text-gray-300 mb-2">Liczba stron</label>
@@ -46,17 +46,24 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label for="user-name" class="block text-sm font-medium text-gray-300 mb-2">Twoje Imię</label><input type="text" id="user-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="Jan"></div>
-                <div><label for="user-email" class="block text-sm font-medium text-gray-300 mb-2">Twój Email</label><input type="email" id="user-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="jan.kowalski@example.com"></div>
-                <div><label for="user-phone" class="block text-sm font-medium text-gray-300 mb-2">Twój Telefon</label><input type="tel" id="user-phone" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="500100200"></div>
+                <div><label for="user-name" class="block text-sm font-medium text-gray-300 mb-2">Twoje Imię</label><input type="text" id="user-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="Emil"></div>
+                <div><label for="user-email" class="block text-sm font-medium text-gray-300 mb-2">Twój Email</label><input type="email" id="user-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="emil@audyteko.eu"></div>
+                <div><label for="user-phone" class="block text-sm font-medium text-gray-300 mb-2">Twój Telefon</label><input type="tel" id="user-phone" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="573580435"></div>
             </div>
 
             <div>
                 <label for="message-template" class="block text-sm font-medium text-gray-300 mb-2">Szablon wiadomości</label>
-                <textarea id="message-template" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">Dzień dobry, {nazwa_uzytkownika}, piszę w nawiązaniu do Państwa ogłoszenia. Chciałbym zaproponować współpracę. Z poważaniem, Jan Kowalski</textarea>
+                <textarea id="message-template" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">Dzień dobry, 
+Zapraszam do skorzystania z oferty na świadectwo energetyczne dla tego mieszkania w super cenie 149 zł brutto  – wszystkie sprawy techniczne bierzemy na siebie, całą procedurę maksymalnie upraszczamy :)
+
+Zamówienie można złożyć bezpośrednio przez nasz formularz na stronie: www.audyteko.eu
+Zapraszam do sprawdzenia nas oraz przetestowania naszej oferty dla agencji nieruchomości! :)
+Pozdrawiam,
+Emil
+www.audyteko.eu</textarea>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 pt-2">
-                <button id="start-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2">
+                <button id="start-btn" class="w-full bg-[#6ff17c] hover:brightness-95 text-gray-900 font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                     <span>Start</span>
                 </button>
@@ -153,7 +160,7 @@
             setUIState(true);
             logContainer.innerHTML = '';
             
-            const scraperUrl = 'https://ephemeral-kitsune-9be704.netlify.app/netlify/functions/scrape';
+            const scraperUrl = 'https://ephemeral-kitsune-9be704.netlify.app/.netlify/functions/scrape';
             const pageCount = parseInt(pageCountInput.value, 10) || 1;
             const baseUrl = urlInput.value.trim();
             let totalAdsProcessed = 0;
@@ -251,3 +258,4 @@
     </script>
 </body>
 </html>
+
