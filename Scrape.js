@@ -1,4 +1,4 @@
-const chromium = require('@sparticuz/chromium');
+const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
 
 exports.handler = async (event) => {
@@ -11,15 +11,11 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, stable configuration with the critical typo fix
+        // Final, industry-standard configuration for Netlify
         browser = await puppeteer.launch({
-            args: [
-                ...chromium.args,
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-            ],
+            args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(), // CRITICAL FIX: Added parentheses ()
+            executablePath: await chromium.executablePath,
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
