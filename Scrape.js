@@ -1,4 +1,4 @@
-const chromium = require('chrome-aws-lambda');
+const chromium = require('@sparticuz/chromium');
 const puppeteer = require('puppeteer-core');
 
 exports.handler = async (event) => {
@@ -11,11 +11,13 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, industry-standard configuration for Netlify
+        // Final, robust configuration for Netlify environment
+        const executablePath = await chromium.executablePath();
+
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: executablePath,
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
