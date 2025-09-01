@@ -11,13 +11,20 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // More robust browser launch
+        // Updated browser launch configuration for serverless environment
         browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [
+                ...chromium.args,
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--single-process'
+            ],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
         });
+        
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
         await page.setViewport({ width: 1280, height: 800 });
