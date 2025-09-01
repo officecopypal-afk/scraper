@@ -1,5 +1,5 @@
-const puppeteer = require("puppeteer-core");
-const chromium = require("chrome-aws-lambda");
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -11,17 +11,17 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Switched to chrome-aws-lambda configuration
+        // The recommended configuration for Netlify
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath(),
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
-        
+
         const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36');
         await page.setViewport({ width: 1280, height: 800 });
 
         if (action === 'getLinks') {
@@ -40,7 +40,6 @@ exports.handler = async (event) => {
             try {
                 await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
                 
-                // Block for getting user info
                 try {
                      userName = await page.$eval('[data-cy="advertiser-card-name"]', el => el.textContent.trim());
                      const phoneButton = await page.waitForSelector('[data-cy="ask-about-number"]', { timeout: 5000 });
@@ -56,21 +55,18 @@ exports.handler = async (event) => {
                     return { statusCode: 200, body: JSON.stringify({ status: 'skipped', userName, userPhone }) };
                 }
                 
-                // Block for filling the form
                 try {
                     await page.type('#name', formData.name, { delay: 50 });
                     await page.type('#email', formData.email, { delay: 50 });
                     await page.type('#phone', formData.phone, { delay: 50 });
                     await page.type('#message', formData.message, { delay: 50 });
-                    await page.click('input[name="rules_confirmation"] + label'); // Clicking the label for the checkbox
+                    await page.click('input[name="rules_confirmation"] + label');
                 } catch(e) {
                     throw new Error(`Nie udało się wypełnić formularza kontaktowego. Sprawdź selektory. Szczegóły: ${e.message}`);
                 }
                 
-                // Block for sending the message
                 // UNCOMMENT THE LINE BELOW TO ENABLE SENDING
                 // await page.click('button[data-cy="contact-form-send-button"]');
-                // await page.waitForTimeout(1000); // wait a bit after click
 
                 return { statusCode: 200, body: JSON.stringify({ status: 'success', userName, userPhone }) };
 
