@@ -1,13 +1,17 @@
 {
-  "name": "audyteko-sdr-scraper",
+  "name": "netlify-scraper",
   "version": "1.0.0",
-  "description": "Scraper for Audyteko SDR",
+  "description": "Scraper for Otodom",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sparticuz/chromium": "119.0.2",
-    "puppeteer-core": "19.5.2"
+    "@sparticuz/chromium": "^111.0.0",
+    "puppeteer-core": "^19.7.2"
   }
 }
 
