@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const chromium = require("chrome-aws-lambda");
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -11,18 +11,13 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Updated browser launch configuration for serverless environment
+        // Switched to chrome-aws-lambda configuration
         browser = await puppeteer.launch({
-            args: [
-                ...chromium.args,
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--single-process'
-            ],
+            args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
+            executablePath: await chromium.executablePath,
             headless: chromium.headless,
+            ignoreHTTPSErrors: true,
         });
         
         const page = await browser.newPage();
@@ -80,9 +75,8 @@ exports.handler = async (event) => {
                 return { statusCode: 200, body: JSON.stringify({ status: 'success', userName, userPhone }) };
 
             } catch (error) {
-                 // This catch block now returns a detailed error message instead of crashing
                  return {
-                    statusCode: 200, // We send 200 OK to the frontend, but with an error status inside
+                    statusCode: 200,
                     body: JSON.stringify({
                         status: 'error',
                         error: error.message,
@@ -96,7 +90,6 @@ exports.handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: 'Nieprawidłowa akcja' }) };
 
     } catch (error) {
-        // This is a critical error (e.g., browser fails to launch)
         console.error("Critical scraper error:", error);
         return {
             statusCode: 500,
