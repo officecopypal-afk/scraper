@@ -11,7 +11,7 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, industry-standard configuration for Netlify
+        // Final, unified configuration using @sparticuz/chromium
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
