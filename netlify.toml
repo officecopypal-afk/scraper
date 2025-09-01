@@ -1,5 +1,7 @@
-[functions."*"]
+[functions]
   included_files = ["node_modules/@sparticuz/chromium/**"]
+
+[functions."*"]
   timeout = 25
   memory = 1024
 
