@@ -11,13 +11,11 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, robust configuration for Netlify environment
-        const executablePath = await chromium.executablePath();
-
+        // Final, industry-standard configuration for Netlify
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: executablePath,
+            executablePath: await chromium.executablePath(),
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
