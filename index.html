@@ -1,261 +1,281 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audyteko SDR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .log-entry { transition: all 0.3s ease-in-out; transform-origin: top; }
-        .status-badge { min-width: 140px; text-align: center; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #d1d5db;
+        }
+
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #6ff17c; /* Zmieniony kolor */
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            border-top-color: #6ff17c;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
-        <!-- Nagłówek -->
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-[#6ff17c]">Audyteko SDR</h1>
-            <p class="text-gray-400 mt-1">Asystent do wysyłania wiadomości na Otodom</p>
-        </div>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-4xl mx-auto bg-[#1f2937] rounded-2xl shadow-2xl shadow-black/30 overflow-hidden">
+        <header class="p-6 bg-gray-900/50 border-b border-gray-700/50">
+            <h1 class="text-2xl font-bold text-white">Audyteko SDR</h1>
+            <p class="text-sm text-gray-400 mt-1">Automatyzacja kontaktu z agencjami na Otodom</p>
+        </header>
 
-        <!-- Panel konfiguracyjny -->
-        <div class="bg-gray-900/50 p-6 rounded-xl space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <label for="otodom-url" class="block text-sm font-medium text-gray-300 mb-2">Link do wyników wyszukiwania Otodom</label>
-                    <input type="text" id="otodom-url" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6ff17c]" placeholder="Wklej tutaj link..." value="https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?limit=24&ownerTypeSingleSelect=AGENCY&page=1">
-                </div>
-                <div>
-                    <label for="page-count" class="block text-sm font-medium text-gray-300 mb-2">Liczba stron</label>
-                    <input type="number" id="page-count" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="1" min="1" max="50">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label for="user-name" class="block text-sm font-medium text-gray-300 mb-2">Twoje Imię</label><input type="text" id="user-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="Emil"></div>
-                <div><label for="user-email" class="block text-sm font-medium text-gray-300 mb-2">Twój Email</label><input type="email" id="user-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="emil@audyteko.eu"></div>
-                <div><label for="user-phone" class="block text-sm font-medium text-gray-300 mb-2">Twój Telefon</label><input type="tel" id="user-phone" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white" value="573580435"></div>
-            </div>
-
-            <div>
-                <label for="message-template" class="block text-sm font-medium text-gray-300 mb-2">Szablon wiadomości</label>
-                <textarea id="message-template" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">Dzień dobry, 
-Zapraszam do skorzystania z oferty na świadectwo energetyczne dla tego mieszkania w super cenie 149 zł brutto  – wszystkie sprawy techniczne bierzemy na siebie, całą procedurę maksymalnie upraszczamy :)
+        <main class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Panel Konfiguracyjny -->
+            <div id="config-panel" class="bg-gray-900/50 p-6 rounded-xl border border-gray-700/50">
+                <h2 class="text-lg font-semibold text-white mb-4">Konfiguracja</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="otodom-url" class="block text-sm font-medium text-gray-300 mb-1">Link do wyników wyszukiwania</label>
+                        <input type="url" id="otodom-url" value="https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?limit=24&market=SECONDARY&ownerTypeSingleSelect=AGENCY&by=LATEST&direction=DESC&viewType=listing"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">
+                    </div>
+                     <div>
+                        <label for="page-count" class="block text-sm font-medium text-gray-300 mb-1">Liczba stron do przetworzenia</label>
+                        <input type="number" id="page-count" value="1" min="1" max="50"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">
+                    </div>
+                    <div>
+                        <label for="user-name" class="block text-sm font-medium text-gray-300 mb-1">Twoje Imię</label>
+                        <input type="text" id="user-name" value="Emil"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">
+                    </div>
+                    <div>
+                        <label for="user-email" class="block text-sm font-medium text-gray-300 mb-1">Twój Email</label>
+                        <input type="email" id="user-email" value="emil@audyteko.eu"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">
+                    </div>
+                    <div>
+                        <label for="user-phone" class="block text-sm font-medium text-gray-300 mb-1">Twój Telefon</label>
+                        <input type="tel" id="user-phone" value="573580435"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">
+                    </div>
+                    <div>
+                        <label for="message-template" class="block text-sm font-medium text-gray-300 mb-1">Szablon Wiadomości</label>
+                        <textarea id="message-template" rows="8"
+                            class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#6ff17c] focus:border-[#6ff17c] transition">Dzień dobry, 
+Zapraszam do skorzystania z oferty na świadectwo energetyczne dla tego mieszkania w super cenie 149 zł brutto  – wszystkie sprawy techniczne bierzemy na siebie, całą procedurę maksymalnie upraszczamy :)
 
 Zamówienie można złożyć bezpośrednio przez nasz formularz na stronie: www.audyteko.eu
 Zapraszam do sprawdzenia nas oraz przetestowania naszej oferty dla agencji nieruchomości! :)
 Pozdrawiam,
 Emil
 www.audyteko.eu</textarea>
+                    </div>
+                </div>
+                 <div class="mt-6 flex space-x-4">
+                    <button id="start-btn" class="w-full bg-[#6ff17c] text-gray-900 font-bold py-2 px-4 rounded-md hover:bg-green-400 transition duration-300 flex items-center justify-center">
+                        Start
+                    </button>
+                    <button id="stop-btn" class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition duration-300 disabled:bg-gray-700 disabled:cursor-not-allowed" disabled>
+                        Stop
+                    </button>
+                </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-4 pt-2">
-                <button id="start-btn" class="w-full bg-[#6ff17c] hover:brightness-95 text-gray-900 font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                    <span>Start</span>
-                </button>
-                <button id="stop-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2" disabled>
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                    <span>Stop</span>
-                </button>
-            </div>
-        </div>
 
-        <!-- Panel postępu i logów -->
-        <div class="bg-gray-900/50 p-6 rounded-xl">
-            <h2 class="text-xl font-semibold mb-4">Panel Postępu</h2>
-            <div id="status-bar" class="bg-gray-700 p-3 rounded-lg text-center text-gray-400 mb-4 transition-colors duration-300 flex items-center justify-center gap-3">
-                Oczekiwanie na uruchomienie...
+            <!-- Panel Postępu -->
+            <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-700/50 flex flex-col">
+                <h2 class="text-lg font-semibold text-white mb-4">Postęp</h2>
+                <div id="status-container" class="mb-4 p-3 bg-gray-800 rounded-md text-center text-sm">
+                    Oczekiwanie na rozpoczęcie...
+                </div>
+                <div id="log-container" class="flex-grow bg-gray-800 rounded-md p-4 overflow-y-auto h-96 text-sm">
+                    <!-- Logi będą dodawane tutaj -->
+                </div>
             </div>
-            <div id="log-container" class="h-64 overflow-y-auto pr-2 space-y-2"></div>
-        </div>
+        </main>
     </div>
 
     <script>
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
         const urlInput = document.getElementById('otodom-url');
         const pageCountInput = document.getElementById('page-count');
-        const messageTemplateInput = document.getElementById('message-template');
-        const statusBar = document.getElementById('status-bar');
+        const nameInput = document.getElementById('user-name');
+        const emailInput = document.getElementById('user-email');
+        const phoneInput = document.getElementById('user-phone');
+        const messageInput = document.getElementById('message-template');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const statusContainer = document.getElementById('status-container');
         const logContainer = document.getElementById('log-container');
-        const userNameInput = document.getElementById('user-name');
-        const userEmailInput = document.getElementById('user-email');
-        const userPhoneInput = document.getElementById('user-phone');
+
+        // UWAGA: Pamiętaj, aby podmienić ten link na Twój prawdziwy adres z Netlify!
+        const scraperUrl = 'https://ephemeral-kitsune-9be704.netlify.app/.netlify/functions/scrape';
 
         let isRunning = false;
-        
+        let processedContacts = new Set();
+        let totalAds = 0;
+        let processedAds = 0;
+
         function setUIState(running) {
             isRunning = running;
             startBtn.disabled = running;
             stopBtn.disabled = !running;
-            [urlInput, pageCountInput, messageTemplateInput, userNameInput, userEmailInput, userPhoneInput].forEach(input => input.disabled = running);
-            startBtn.classList.toggle('opacity-50', running);
-            stopBtn.classList.toggle('opacity-50', !running);
+            urlInput.disabled = running;
+            pageCountInput.disabled = running;
+            nameInput.disabled = running;
+            emailInput.disabled = running;
+            phoneInput.disabled = running;
+            messageInput.disabled = running;
         }
 
-        function updateStatus(message, isLoading = false, isError = false) {
-            statusBar.innerHTML = ''; 
-            if (isLoading) {
-                const loader = document.createElement('div');
-                loader.className = 'loader';
-                statusBar.appendChild(loader);
+        function updateStatus(message, isError = false) {
+             const statusClass = isError ? 'text-red-400' : 'text-gray-300';
+             statusContainer.innerHTML = `<span class="${statusClass}">${message}</span>`;
+        }
+
+        function logMessage(message, type = 'info') {
+            const colors = {
+                info: 'text-gray-400',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+            };
+            const logEntry = document.createElement('div');
+            logEntry.className = `p-2 mb-2 rounded-md bg-gray-900/50 ${colors[type]}`;
+            logEntry.innerHTML = message;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function fetchFromScraper(body) {
+             const response = await fetch(scraperUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) {
+                // Now we get more details from the response body if it's a 500 error
+                 if (response.status === 500) {
+                    const errorData = await response.json();
+                    throw new Error(`Błąd serwera (500): ${errorData.error || 'Nieznany błąd scrapera'}`);
+                }
+                throw new Error(`Błąd sieciowy: ${response.status} ${response.statusText}`);
             }
-            const text = document.createElement('span');
-            text.textContent = message;
-            statusBar.appendChild(text);
-            
-            let colorClass = 'bg-gray-700';
-            if (isError) colorClass = 'bg-red-500';
-            statusBar.className = `p-3 rounded-lg text-center text-white transition-colors duration-300 flex items-center justify-center gap-3 ${colorClass}`;
-        }
-        
-        function addLogEntry(result) {
-            const entry = document.createElement('div');
-            entry.className = 'log-entry bg-gray-800 p-3 rounded-lg flex items-center justify-between animate-fade-in';
-            
-            let statusBadge;
-            if (result.status === 'success') {
-                statusBadge = `<span class="status-badge text-sm font-semibold text-green-400 bg-green-900/50 px-3 py-1 rounded-full">Wysłano</span>`;
-            } else if (result.status === 'skipped') {
-                statusBadge = `<span class="status-badge text-sm font-semibold text-yellow-400 bg-yellow-900/50 px-3 py-1 rounded-full">Pominięto (Duplikat)</span>`;
-            } else {
-                statusBadge = `<span class="status-badge text-sm font-semibold text-red-400 bg-red-900/50 px-3 py-1 rounded-full" title="${result.reason || 'Nieznany błąd'}">Błąd</span>`;
-            }
-
-            entry.innerHTML = `
-                <div>
-                    <span class="font-medium text-white">${result.user}</span>
-                    <p class="text-xs text-gray-400">${result.phone || 'Brak numeru'}</p>
-                </div>
-                ${statusBadge}`;
-            logContainer.prepend(entry);
+            return response.json();
         }
 
-        async function startProcess() {
-            if (isRunning) return;
-
-            const userName = userNameInput.value.trim();
-            const userEmail = userEmailInput.value.trim();
-            const userPhone = userPhoneInput.value.trim();
-
-            if (!userName || !userEmail || !userPhone) {
-                updateStatus('Błąd: Wypełnij pola Imię, Email i Telefon.', false, true);
+        startBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            const totalPages = parseInt(pageCountInput.value, 10);
+            if (!url) {
+                logMessage('Błąd: Wprowadź link do wyników wyszukiwania.', 'error');
                 return;
             }
 
             setUIState(true);
             logContainer.innerHTML = '';
-            
-            const scraperUrl = 'https://ephemeral-kitsune-9be704.netlify.app/.netlify/functions/scrape';
-            const pageCount = parseInt(pageCountInput.value, 10) || 1;
-            const baseUrl = urlInput.value.trim();
-            let totalAdsProcessed = 0;
-            let processedContacts = new Set(); // Pamięć sesji dla duplikatów
+            processedContacts.clear();
+            totalAds = 0;
+            processedAds = 0;
 
-            for (let currentPage = 1; currentPage <= pageCount; currentPage++) {
-                if (!isRunning) { break; }
+            try {
+                for (let currentPage = 1; currentPage <= totalPages; currentPage++) {
+                    if (!isRunning) break;
 
-                updateStatus(`Pobieranie linków (Strona ${currentPage}/${pageCount})...`, true);
-                
-                let pageUrl;
-                if (baseUrl.includes('page=')) {
-                    pageUrl = baseUrl.replace(/page=\d+/, `page=${currentPage}`);
-                } else {
-                    pageUrl = baseUrl.includes('?') ? `${baseUrl}&page=${currentPage}` : `${baseUrl}?page=${currentPage}`;
-                }
-                
-                let adLinks;
-                try {
-                    const response = await fetch(scraperUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ task: 'get_links', url: pageUrl })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || 'Błąd serwera');
-                    adLinks = result.data;
-                } catch (error) {
-                    updateStatus(`Błąd pobierania linków ze strony ${currentPage}. Zatrzymuję.`, false, true);
-                    setUIState(false);
-                    return;
-                }
-
-                if (!adLinks || adLinks.length === 0) {
-                    updateStatus(`Nie znaleziono ogłoszeń na stronie ${currentPage}. Przechodzę dalej...`, false);
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    continue;
-                }
-                
-                for (let i = 0; i < adLinks.length; i++) {
-                    if (!isRunning) { break; }
+                    updateStatus(`Strona ${currentPage}/${totalPages} - Pobieranie linków...`);
                     
-                    updateStatus(`Strona ${currentPage}/${pageCount} - Przetwarzanie ogłoszenia ${i + 1}/${adLinks.length}...`, true);
+                    const pageUrl = `${url}&page=${currentPage}`;
+                    const { links } = await fetchFromScraper({ action: 'getLinks', url: pageUrl });
                     
-                    try {
-                        const payload = {
-                            task: 'process_ad',
-                            adUrl: adLinks[i],
-                            userData: { name: userName, email: userEmail, phone: userPhone },
-                            message: messageTemplateInput.value.trim(),
-                            knownContacts: Array.from(processedContacts) // Wyślij listę już przetworzonych
-                        };
+                    if (!links || links.length === 0) {
+                        logMessage(`Strona ${currentPage}: Nie znaleziono żadnych ogłoszeń.`, 'warning');
+                        continue;
+                    }
 
-                        const response = await fetch(scraperUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
+                    totalAds += links.length;
+                    logMessage(`Strona ${currentPage}: Znaleziono ${links.length} ogłoszeń. Rozpoczynam przetwarzanie...`, 'info');
+
+                    for (const adLink of links) {
+                        if (!isRunning) break;
+                        processedAds++;
+                        updateStatus(`Strona ${currentPage}/${totalPages} - Przetwarzanie ogłoszenia ${processedAds}/${totalAds}...`);
+
+                        const result = await fetchFromScraper({
+                            action: 'processAd',
+                            url: adLink,
+                            formData: {
+                                name: nameInput.value,
+                                email: emailInput.value,
+                                phone: phoneInput.value,
+                                message: messageInput.value
+                            },
+                            processedContacts: Array.from(processedContacts)
                         });
 
-                        const result = await response.json();
-                        if (!response.ok) throw new Error(result.error);
-                        
-                        // Dodaj do przetworzonych, jeśli nie jest to duplikat i ma dane kontaktowe
-                        if (result.data.status !== 'skipped' && result.data.user && result.data.phone) {
-                            const contactKey = `${result.data.user}|${result.data.phone}`;
+                        const contactKey = `${result.userName}-${result.userPhone}`;
+
+                        if (result.status === 'skipped') {
+                             logMessage(`POMINIĘTO (Duplikat): <strong>${result.userName || 'Brak nazwy'}</strong> (${result.userPhone || 'Brak telefonu'})`, 'warning');
+                        } else if (result.status === 'success') {
                             processedContacts.add(contactKey);
+                            logMessage(`WYSŁANO: Wiadomość do <strong>${result.userName}</strong> (${result.userPhone})`, 'success');
+                        } else {
+                            // This is the new part for detailed errors
+                            logMessage(`BŁĄD przy ogłoszeniu dla <strong>${result.userName || 'Nieznany'}</strong>: <br><small>${result.error}</small>`, 'error');
                         }
-
-                        addLogEntry(result.data);
-                        totalAdsProcessed++;
-
-                    } catch (error) {
-                        addLogEntry({ user: `Ogłoszenie ${i + 1}`, phone: 'Błąd krytyczny', status: 'failure', reason: error.message });
+                        await delay(1000); // Small delay between requests
                     }
                 }
-            }
 
+                if (isRunning) {
+                     updateStatus('Zakończono! Przetworzono wszystkie zadania.');
+                } else {
+                     updateStatus('Zatrzymano przez użytkownika.');
+                }
+
+            } catch (error) {
+                updateStatus(`Krytyczny błąd procesu: ${error.message}`, true);
+                logMessage(`Wystąpił krytyczny błąd: ${error.message}`, 'error');
+            } finally {
+                setUIState(false);
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
             if (isRunning) {
-                updateStatus(`Zakończono! Przetworzono ${totalAdsProcessed} ogłoszeń z ${pageCount} stron(y).`);
-            } else {
-                 updateStatus(`Proces zatrzymany. Przetworzono ${totalAdsProcessed} ogłoszeń.`, false, true);
+                setUIState(false);
+                updateStatus('Zatrzymywanie...');
             }
-            setUIState(false);
-        }
+        });
 
-        function stopProcess() {
-            if (!isRunning) return;
-            isRunning = false; 
-            updateStatus('Zatrzymywanie...', false, true);
-        }
-
-        startBtn.addEventListener('click', startProcess);
-        stopBtn.addEventListener('click', stopProcess);
-        setUIState(false);
     </script>
 </body>
+
 </html>
 
