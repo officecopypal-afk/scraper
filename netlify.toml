@@ -1,11 +1,5 @@
-# Konfiguracja dla funkcji serwerowych
 [functions]
-  # Ustawienie bundlera na esbuild dla lepszej wydajności
-  node_bundler = "esbuild"
-  
-  # Ustawienia dla wszystkich funkcji
-  [functions."*"]
-    # Zwiększenie maksymalnego czasu wykonania funkcji do 25 sekund
-    timeout = 25
-
+  included_files = ["node_modules/@sparticuz/chromium/**"]
+  timeout = 25
+  memory = 1024
 
