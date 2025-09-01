@@ -11,11 +11,15 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, stable configuration for Netlify using compatible packages
+        // Final, stable configuration with sandbox arguments for serverless environments
         browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [
+                ...chromium.args,
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath, // This is a property, not a function call
+            executablePath: await chromium.executablePath,
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
