@@ -1,4 +1,4 @@
-const chromium = require('chrome-aws-lambda');
+const chromium = require('@sparticuz/chromium');
 const puppeteer = require('puppeteer-core');
 
 exports.handler = async (event) => {
@@ -11,7 +11,7 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { action, url } = body;
 
-        // Final, stable configuration with sandbox arguments for serverless environments
+        // Final, stable configuration with the critical typo fix
         browser = await puppeteer.launch({
             args: [
                 ...chromium.args,
@@ -19,7 +19,7 @@ exports.handler = async (event) => {
                 '--disable-setuid-sandbox',
             ],
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath(), // CRITICAL FIX: Added parentheses ()
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
